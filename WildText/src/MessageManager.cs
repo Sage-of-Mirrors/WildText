@@ -100,7 +100,7 @@ namespace WildText.src
 
             for (int i = 0; i < TextData.Count; i++)
             {
-                Message mes = new Message(LabelData.Find(x => x.MessageIndex == i).LabelData, AttributeData[i], TextData[i]);
+                Message mes = new Message(LabelData.Find(x => x.MessageIndex == i).LabelData, AttributeData.Count != 0 ? AttributeData[i] : "", TextData[i]);
                 Messages.Add(mes);
             }
         }
@@ -231,11 +231,13 @@ namespace WildText.src
             long baseOffset = reader.BaseStream.Position;
             int numAttributes = reader.ReadInt32();
 
-            Trace.Assert(reader.ReadInt32() == 4); // Always 4?
+            if (reader.ReadInt32() == 0)
+                numAttributes = 0;
 
             for (int i = 0; i < numAttributes; i++)
             {
                 int atrOffset = reader.ReadInt32();
+
                 long returnOffset = reader.BaseStream.Position;
 
                 reader.BaseStream.Position = baseOffset + atrOffset;
@@ -311,8 +313,7 @@ namespace WildText.src
                 // This is a control code!
                 if (testShort == 0x000E)
                 {
-                    // We'll skip it for now.
-                    reader.BaseStream.Position += 8;
+                    messageCharsAsShorts.AddRange(ProcControlCode(reader));
                 }
                 else
                     messageCharsAsShorts.Add(testShort);
@@ -324,6 +325,20 @@ namespace WildText.src
             Buffer.BlockCopy(messageCharsAsShorts.ToArray(), 0, messageByteArray, 0, messageByteArray.Length);
 
             TextData.Add(Encoding.Unicode.GetString(messageByteArray));
+        }
+
+        private short[] ProcControlCode(EndianBinaryReader reader)
+        {
+            List<short> controlCode = new List<short>();
+            controlCode.Add((short)'<');
+
+            short primaryType = reader.ReadInt16();
+            short secondaryType = reader.ReadInt16();
+            short dataSize = reader.ReadInt16();
+
+            reader.BaseStream.Position += (dataSize);
+            controlCode.Add((short)'>');
+            return controlCode.ToArray();
         }
         #endregion
     }

@@ -41,6 +41,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -61,7 +63,11 @@
     </ApplicationDefinition>
     <Compile Include="src\Message.cs" />
     <Compile Include="src\MessageManager.cs" />
+    <Compile Include="src\RelayCommand.cs" />
     <Compile Include="src\Util.cs" />
+    <Compile Include="src\ViewModel\Common.cs" />
+    <Compile Include="src\ViewModel\Importing.cs" />
+    <Compile Include="src\ViewModel\RelayCommands.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
