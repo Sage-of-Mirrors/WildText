@@ -6,17 +6,17 @@
         xmlns:local="clr-namespace:WildText"
         xmlns:view="clr-namespace:WildText.src.ViewModel"
         mc:Ignorable="d"
-        Title="{Binding WindowTitle}" Height="575.583" Width="750.333">
+        Title="{Binding WindowTitle}" Height="466.714" Width="725.833">
     <Window.DataContext>
         <view:ViewModel/>
     </Window.DataContext>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="170*"/>
-            <ColumnDefinition Width="3*"/>
-            <ColumnDefinition Width="345*"/>
+            <ColumnDefinition Width="217*"/>
+            <ColumnDefinition Width="4"/>
+            <ColumnDefinition Width="534*"/>
         </Grid.ColumnDefinitions>
-        <GridSplitter Grid.Column="1" Width="2" Margin="0,0,0,0" HorizontalAlignment="Stretch"/>
+        <GridSplitter Margin="0,10,0,-10" HorizontalAlignment="Stretch" Grid.Column="1" Grid.ColumnSpan="1"/>
         <Menu VerticalAlignment="Top" Grid.ColumnSpan="3" Height="21">
             <MenuItem Header="File">
                 <MenuItem Header="Open..." Command="{Binding OnRequestOpenFile}"/>
@@ -27,7 +27,7 @@
                 <MenuItem Header="Close File" Command="{Binding OnRequestCloseFile}"/>
             </MenuItem>
         </Menu>
-        <DockPanel LastChildFill="True" Margin="0,21,0,0" Grid.Column="0">
+        <DockPanel LastChildFill="True" Grid.Column="0" Margin="0,26,1,0">
             <Grid>
                 <ListView x:Name="listBox1" ItemsSource="{Binding MessageManager.Messages}" SelectedItem="{Binding SelectedMessage}" Margin="10" ScrollViewer.CanContentScroll="False">
                     <ListView.View>
@@ -40,9 +40,17 @@
                 </ListView>
             </Grid>
         </DockPanel>
-        <DockPanel LastChildFill="True" Grid.Column="2" RenderTransformOrigin="0.5,0.5" Margin="0,21,0,0">
+        <DockPanel LastChildFill="True" Grid.Column="2" RenderTransformOrigin="0.5,0.5" Margin="12,26,0,0">
             <Grid>
-                <TextBox x:Name="textBox" Margin="0,174,10,10" TextWrapping="Wrap" Text="{Binding SelectedMessage.Text}"/>
+                <GroupBox x:Name="groupBox" Header="Properties" Margin="0,0,10,0" Height="64" VerticalAlignment="Top">
+                    <Grid>
+                        <TextBox x:Name="labelBox" Margin="55,10,0,0" TextWrapping="NoWrap"  Text="{Binding SelectedMessage.Label}" Height="24" VerticalAlignment="Top" HorizontalAlignment="Left" Width="155"/>
+                        <Label x:Name="label" Content="Label: " Margin="6,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="44"/>
+                        <Label x:Name="label1" Content="Attribute: " Margin="234,8,177,0" VerticalAlignment="Top"/>
+                        <TextBox x:Name="labelBox_Copy" Margin="302,10,17,0" TextWrapping="NoWrap"  Text="{Binding SelectedMessage.Attribute}" Height="24" VerticalAlignment="Top"/>
+                    </Grid>
+                </GroupBox>
+                <TextBox x:Name="textBox" Margin="0,69,10,10" TextWrapping="Wrap" Text="{Binding SelectedMessage.Text}"/>
             </Grid>
         </DockPanel>
     </Grid>

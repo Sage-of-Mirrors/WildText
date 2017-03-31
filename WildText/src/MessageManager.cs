@@ -341,5 +341,13 @@ namespace WildText.src
             return controlCode.ToArray();
         }
         #endregion
+
+        public void Clear()
+        {
+            LabelData.Clear();
+            AttributeData.Clear();
+            TextData.Clear();
+            Messages.Clear();
+        }
     }
 }
