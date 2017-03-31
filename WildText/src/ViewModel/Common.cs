@@ -65,9 +65,19 @@ namespace WildText.src.ViewModel
             }
         }
 
+        private bool hasChanged;
+
         public void Close()
         {
+            /*
+            if (hasChanged)
+            {
+                //Save stuff
+            }
+            */
 
+            m_MessageManager.Clear();
+            m_SelectedMessage = null;
         }
     }
 }

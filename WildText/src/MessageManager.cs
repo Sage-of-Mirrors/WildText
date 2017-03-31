@@ -326,5 +326,13 @@ namespace WildText.src
             TextData.Add(Encoding.Unicode.GetString(messageByteArray));
         }
         #endregion
+
+        public void Clear()
+        {
+            LabelData.Clear();
+            AttributeData.Clear();
+            TextData.Clear();
+            Messages.Clear();
+        }
     }
 }
