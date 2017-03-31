@@ -304,7 +304,7 @@ namespace WildText.src
 
         private void ReadMessageText(EndianBinaryReader reader)
         {
-            List<short> messageCharsAsShorts = new List<short>();
+            List<char> messageChars = new List<char>();
 
             short testShort = reader.ReadInt16();
 
@@ -313,32 +313,159 @@ namespace WildText.src
                 // This is a control code!
                 if (testShort == 0x000E)
                 {
-                    messageCharsAsShorts.AddRange(ProcControlCode(reader));
+                    messageChars.AddRange(ProcControlCode(reader));
                 }
                 else
-                    messageCharsAsShorts.Add(testShort);
+                    messageChars.Add((char)testShort);
 
                 testShort = reader.ReadInt16();
             }
 
-            byte[] messageByteArray = new byte[messageCharsAsShorts.Count * sizeof(short)];
-            Buffer.BlockCopy(messageCharsAsShorts.ToArray(), 0, messageByteArray, 0, messageByteArray.Length);
-
-            TextData.Add(Encoding.Unicode.GetString(messageByteArray));
+            TextData.Add(new string(messageChars.ToArray()));
         }
 
-        private short[] ProcControlCode(EndianBinaryReader reader)
+        private char[] ProcControlCode(EndianBinaryReader reader)
         {
-            List<short> controlCode = new List<short>();
-            controlCode.Add((short)'<');
+            List<char> controlCode = new List<char>();
+            controlCode.Add('<');
 
             short primaryType = reader.ReadInt16();
             short secondaryType = reader.ReadInt16();
             short dataSize = reader.ReadInt16();
 
-            reader.BaseStream.Position += (dataSize);
-            controlCode.Add((short)'>');
+            switch (primaryType)
+            {
+                case 0:
+                    controlCode.AddRange(GetTextModifier(reader, secondaryType));
+                    break;
+                case 1:
+                    controlCode.AddRange(GetPlayerInput(reader, secondaryType));
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    controlCode.AddRange(GetAnimationIndex(reader, secondaryType));
+                    break;
+                case 4:
+                    controlCode.AddRange(GetSoundIndex(reader, secondaryType));
+                    break;
+                case 5:
+                    controlCode.AddRange(GetPause(reader, secondaryType));
+                    break;
+                default:
+                    reader.BaseStream.Position += dataSize;
+                    break;
+            }
+
+            controlCode.Add('>');
+
             return controlCode.ToArray();
+        }
+
+        private char[] GetTextModifier(EndianBinaryReader reader, short secondaryType)
+        {
+            List<char> result = new List<char>();
+
+            switch (secondaryType)
+            {
+                case 0:
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    result.AddRange($"size:{ reader.ReadInt16() }");
+                    break;
+                case 3:
+                    result.AddRange($"Color:{ reader.ReadInt16() }");
+                    break;
+            }
+
+            return result.ToArray();
+        }
+
+        private char[] GetPlayerInput(EndianBinaryReader reader, short secondaryType)
+        {
+            List<char> result = new List<char>();
+
+            switch (secondaryType)
+            {
+                case 4:
+                case 5:
+                case 6:
+                    result.AddRange("choice:");
+                    reader.BaseStream.Position -= 2;
+                    short numChoices = (short)(reader.ReadInt16() / 2);
+                    for (int i = 0; i < numChoices; i++)
+                    {
+                        if (i != 0)
+                            result.Add(',');
+                        result.AddRange($"{ reader.ReadInt16() }");
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return result.ToArray();
+        }
+
+        private char[] GetAnimationIndex(EndianBinaryReader reader, short secondaryType)
+        {
+            List<char> result = new List<char>();
+
+            switch (secondaryType)
+            {
+                case 0:
+                    throw new FormatException();
+                case 1:
+                    result.AddRange($"Anim:{ reader.ReadUInt16() }");
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+            }
+
+            return result.ToArray();
+        }
+
+        private char[] GetSoundIndex(EndianBinaryReader reader, short secondaryType)
+        {
+            List<char> result = new List<char>();
+
+            switch (secondaryType)
+            {
+                case 1:
+                    break;
+                case 2:
+                    short stringIDSize = (short)(reader.ReadInt16() / 2);
+                    result.AddRange("Sound:");
+                    for (int i = 0; i < stringIDSize; i++)
+                        result.Add((char)reader.ReadInt16());
+                    break;
+            }
+
+            return result.ToArray();
+        }
+
+        private char[] GetPause(EndianBinaryReader reader, short secondaryType)
+        {
+            List<char> result = new List<char>();
+
+            switch (secondaryType)
+            {
+                case 0:
+                    result.AddRange("pause:short");
+                    break;
+                case 1:
+                    result.AddRange("pause:medium");
+                    break;
+                case 2:
+                    result.AddRange("pause:long");
+                    break;
+            }
+
+            return result.ToArray();
         }
         #endregion
 
